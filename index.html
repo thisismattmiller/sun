@@ -178,7 +178,7 @@ var audio = new Audio('sun_sonification.wav');
   for (var i = 0; i < select.length; i++){
     var option = select.options[i];
     // now have option.text, option.value
-    if (option.value == new Date().getMonth().toString()){
+    if (option.value == (new Date().getMonth()+1).toString()){
       option.selected = true
     }
   }
@@ -186,7 +186,7 @@ var audio = new Audio('sun_sonification.wav');
   for (var i = 0; i < select.length; i++){
     var option = select.options[i];
     // now have option.text, option.value
-    if (option.value == new Date().getDay().toString()){
+    if (option.value == (new Date().getDate()+1).toString()){
       option.selected = true
     }
   }
