@@ -290,7 +290,7 @@ document.getElementById('go').onclick = () => {
 
         <div class="sun"> 
           <h1>${y}</h1> 
-          <video width="100%" height="auto" class="vid" autoplay loop>
+          <video width="100%" height="auto" class="vid" playsinline webkit-playsinline autoplay loop>
             
             <source src="https://thisismattmiller.s3.amazonaws.com/sun/${y}${doMonth}${doDay}_low.mp4" type="video/mp4" />
             Your browser does not support the video tag.
@@ -331,7 +331,7 @@ document.getElementById('go').onclick = () => {
 
       document.getElementById('modal').innerHTML = `
 
-          <video width="100%" height="auto" id="vidmodal" autoplay loop>
+          <video width="100%" height="auto" id="vidmodal" playsinline webkit-playsinline autoplay loop>
             
             <source src="${element.children[0].src.replace('_low','')}" type="video/mp4" />
             Your browser does not support the video tag.
