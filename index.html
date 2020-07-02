@@ -1,0 +1,364 @@
+<!doctype html>
+<html class="no-js" lang="" style="height: 100%">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <!-- Place favicon.ico in the root directory -->
+  <style>
+    body{
+      background: black;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Space Mono', monospace;
+      color: white;
+    }
+    #container {
+      display: inline-grid;
+      grid-template-columns: repeat(auto-fit, var(--item-width));
+      grid-template-rows: repeat(auto-fit, var(--item-height));
+      place-content: space-evenly;
+      width: 100%;
+      height: 100%;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+
+    select{
+      font-family: 'Space Mono', monospace;
+font-size: 2em;
+    background: none;
+    color: white;
+    border: none;      
+    }
+button{
+  font-family: 'Space Mono', monospace;
+      font-size: 2em;
+    border: solid 1px white;
+    background: none;
+    color: white;
+}
+h1{
+  text-align: center;
+}
+
+.sun h1{
+  position: absolute;
+  display: none;
+  float: left;
+  z-index: 100;
+}
+
+.sun:hover h1{
+
+  display: block;
+
+}
+
+#modal{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  display: none;
+  z-index: 1000;
+
+}
+video{
+  cursor: pointer;
+}
+
+
+  </style>
+</head>
+
+<body style="height: 100%">
+
+<div id="modal"></div>
+
+<div id="container">
+
+
+
+<div id="intro" class="item">
+
+  <div style="text-align: center">
+    <h1>pick a date</h1>
+    <span>
+         <select id="month">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+         </select> 
+    </span>
+    <span>
+         <select id="day">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+              <option value="16">16</option>
+              <option value="17">17</option>
+              <option value="18">18</option>
+              <option value="19">19</option>
+              <option value="20">20</option>
+              <option value="21">21</option>
+              <option value="22">22</option>
+              <option value="23">23</option>
+              <option value="24">24</option>
+              <option value="25">25</option>
+              <option value="26">26</option>
+              <option value="27">27</option>
+              <option value="28">28</option>
+              <option value="29">29</option>
+              <option value="30">30</option>
+              <option value="31">31</option>
+         </select>
+    </span>
+    <button id="go">go</button>
+    <div style="margin-top: 5em; text-align: center;">
+      <div>View the sun on this day every year between 2011 and 2019</div>
+      <div>By <a href="https://thisismattmiller.com" style="color: white">Matt Miller</a>, data from <a href="https://www.nasa.gov/feature/goddard/2020/watch-a-10-year-time-lapse-of-sun-from-nasa-s-sdo" style="color: white">NASA</a></div>
+
+    </div>
+    <div>
+      
+
+    </div>
+  </div>
+</div>
+<!-- <audio controls="controls" loop autoplay><source src="sun_sonification.wav" type="audio/x-wav" /></audio> -->
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+var audio = new Audio('sun_sonification.wav');
+
+
+
+  var select = document.getElementById("month");
+  for (var i = 0; i < select.length; i++){
+    var option = select.options[i];
+    // now have option.text, option.value
+    if (option.value == new Date().getMonth().toString()){
+      option.selected = true
+    }
+  }
+  var select = document.getElementById("day");
+  for (var i = 0; i < select.length; i++){
+    var option = select.options[i];
+    // now have option.text, option.value
+    if (option.value == new Date().getDay().toString()){
+      option.selected = true
+    }
+  }
+
+
+
+
+
+//   
+// Get the best item bounds to fit in the container. Param object must have
+// width, height, itemCount, aspectRatio, maxRows, and minGap. The itemCount
+// must be greater than 0. Result is single object with rowCount, colCount,
+// itemWidth, and itemHeight.
+function getBestItemBounds(config) {
+  const actualRatio = config.width / config.height
+  // Just make up theoretical sizes, we just care about ratio
+  const theoreticalHeight = 100
+  const theoreticalWidth = theoreticalHeight * config.aspectRatio
+  // Go over each row count find the row and col count with the closest
+  // ratio.
+  let best
+  for (let rowCount = 1; rowCount <= config.maxRows; rowCount++) {
+    // Row count can't be higher than item count
+    if (rowCount > config.itemCount) continue
+    const colCount = Math.ceil(config.itemCount / rowCount)
+    // Get the width/height ratio
+    const ratio = (theoreticalWidth * colCount) / (theoreticalHeight * rowCount)
+    if (!best || Math.abs(ratio - actualRatio) < Math.abs(best.ratio - actualRatio)) {
+      best = { rowCount, colCount, ratio }
+    }
+  }
+  // Build item height and width. If the best ratio is less than the actual ratio,
+  // it's the height that determines the width, otherwise vice versa.
+  const result = { rowCount: best.rowCount, colCount: best.colCount }
+  if (best.ratio < actualRatio) {
+    result.itemHeight = (config.height - (config.minGap * best.rowCount)) / best.rowCount
+    result.itemWidth = result.itemHeight * config.aspectRatio
+  } else {
+    result.itemWidth = (config.width - (config.minGap * best.colCount)) / best.colCount
+    result.itemHeight = result.itemWidth / config.aspectRatio
+  }
+  return result
+}
+
+// Change the item size via CSS property
+function resetContainerItems() {
+  const itemCount = document.querySelectorAll('.item').length
+  if (!itemCount) return
+  const container = document.getElementById('container')
+  const rect = container.getBoundingClientRect()
+  // Get best item bounds and apply property
+  const { itemWidth, itemHeight } = getBestItemBounds({
+    width: rect.width,
+    height: rect.height,
+    itemCount,
+    aspectRatio: 16 / 9,
+    maxRows: 5,
+    minGap: 5
+  })
+  console.log('Item changes', itemWidth, itemHeight)
+  container.style.setProperty('--item-width', itemWidth + 'px')
+  container.style.setProperty('--item-height', itemHeight + 'px')
+}
+
+// Element resize support
+const resObs = new ResizeObserver(() => resetContainerItems())
+resObs.observe(document.getElementById('container'))
+
+// Add item support
+let counter = 0
+document.getElementById('go').onclick = () => {
+
+
+  let  doDay = parseInt(document.getElementById('day').value)
+  let  doMonth = parseInt(document.getElementById('month').value)
+  document.getElementById('intro').remove()
+
+  
+
+  let years = [2011,2012,2013,2014,2015,2016,2017,2018,2019]
+ 
+
+  years.forEach((y)=>{
+    console.log(doMonth)
+
+    if (y == 2010 & doMonth < 6){
+      return null
+    }
+    if (y == 2020 & doMonth > 5){
+      return null
+    }
+    // if (y>2012){
+    //   return null
+    // }
+     const elem = document.createElement('div')
+      elem.className = 'item'
+
+
+      elem.innerHTML = `
+
+
+        <div class="sun"> 
+          <h1>${y}</h1> 
+          <video width="100%" height="auto" class="vid" autoplay loop>
+            
+            <source src="https://thisismattmiller.s3.amazonaws.com/sun/${y}${doMonth}${doDay}.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      `
+
+
+
+      // <video width="100%" height="auto" autoplay loop>
+      //   <source src="2010620.mp4" type="video/mp4" />
+      //   Your browser does not support the video tag.
+      // </video>
+    // const button = document.createElement('button')
+    // button.innerText = 'Delete Item #' + (++counter)
+    // button.onclick = () => {
+    //   document.getElementById('container').removeChild(elem)
+    //   resetContainerItems()
+    // }
+
+      // elem.appendChild(button)
+      document.getElementById('container').appendChild(elem)
+      resetContainerItems()
+      
+
+
+
+  
+
+
+  })
+      var elements = document.getElementsByClassName("vid");
+
+  Array.from(elements).forEach(function(element) {
+    element.addEventListener('click', ()=>{
+
+      document.getElementById('modal').style.display='block'
+
+      document.getElementById('modal').innerHTML = `
+
+          <video width="100%" height="auto" id="vidmodal" autoplay loop>
+            
+            <source src="${element.children[0].src}" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+
+
+      `
+
+      document.getElementById('vidmodal').addEventListener('click',()=>{
+        document.getElementById('modal').style.display='none'
+      })
+
+
+    });
+  });  
+
+  audio.play();
+
+}
+
+
+</script>
+
+
+
+
+
+</body>
+
+</html>
